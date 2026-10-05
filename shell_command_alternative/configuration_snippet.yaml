@@ -1,0 +1,61 @@
+# =============================================================================
+# Home-Assistant-Konfiguration: manuelle Tueroeffnung GBF MR263C4 / ControlCam
+# -----------------------------------------------------------------------------
+# In die configuration.yaml uebernehmen (bzw. in die jeweiligen Abschnitte
+# einsortieren, falls shell_command:/script: schon existieren).
+#
+# WICHTIG:
+#   * Bewusste MANUELLE Einzelaktion -- KEINE automation:, kein Zeitplan, kein Trigger.
+#   * Ein Aufruf = eine Transaktion. Keine Wiederholung/Retry.
+#   * Kein Türstatus wird vorgetaeuscht: "Erfolg" = nur Protokoll-Quittung des
+#     Geräts (result=1), NICHT "Tür ist offen". Daher bewusst KEINE lock-/
+#     binary_sensor-Entität mit Zustand -- nur ein zustandsloser Auslöser (Button).
+#   * Zugangsdaten stehen in door_secrets.json (chmod 600), NICHT hier.
+# =============================================================================
+
+shell_command:
+  # Ruft das Skript auf. Keine Secrets auf der Kommandozeile -- die liest das
+  # Skript aus door_secrets.json. Pfade ggf. an dein /config-Layout anpassen.
+  open_front_door: "python3 /config/door/door_unlock_ha.py"
+
+script:
+  open_front_door:
+    alias: "Haustuer oeffnen (manuell)"
+    icon: mdi:door-open
+    mode: single          # kein paralleler/mehrfacher Lauf
+    max_exceeded: silent
+    sequence:
+      - service: shell_command.open_front_door
+        response_variable: door_result
+      - choose:
+          - conditions: "{{ door_result.returncode == 0 }}"
+            sequence:
+              - service: persistent_notification.create
+                data:
+                  title: "Haustuer"
+                  message: >-
+                    Öffnungsbefehl gesendet, Gerät hat Protokoll-Erfolg gemeldet
+                    (result=1). Hinweis: keine unabhaengige Bestätigung, dass die
+                    Tür physisch offen ist.
+        default:
+          - service: persistent_notification.create
+            data:
+              title: "Haustuer -- FEHLER"
+              message: >-
+                Öffnung fehlgeschlagen (Exit {{ door_result.returncode }}).
+                {{ door_result.stderr }}
+
+# -----------------------------------------------------------------------------
+# Dashboard-Button (Lovelace): fügt einen Knopf hinzu, der NUR manuell durch
+# eine Person das Script auslöst. In eine Dashboard-Karte übernehmen:
+#
+#   type: button
+#   name: Haustür öffnen
+#   icon: mdi:door-open
+#   tap_action:
+#     action: perform-action          # (aeltere HA: action: call-service)
+#     perform_action: script.open_front_door
+#     # Optional als Schutz gegen versehentliches Antippen:
+#   hold_action:
+#     action: none
+# -----------------------------------------------------------------------------

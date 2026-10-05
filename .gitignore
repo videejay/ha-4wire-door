@@ -1,0 +1,4 @@
+# Enthaelt das Geraete-Passwort im Klartext -- niemals einchecken.
+door_secrets.json
+__pycache__/
+*.pyc

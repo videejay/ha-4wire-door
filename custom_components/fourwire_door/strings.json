@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "4-Wire Door hinzufügen",
+        "description": "Zugangsdaten der Türstation (GBF MR263C4 / ControlCam) eingeben.",
+        "data": {
+          "host": "IP-Adresse",
+          "username": "Benutzername",
+          "password": "Passwort",
+          "name": "Name",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Gerät fehlgeschlagen.",
+      "invalid_auth": "Benutzername oder Passwort falsch.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "4-Wire Door – Einstellungen",
+        "data": {
+          "require_pin": "PIN beim Öffnen abfragen",
+          "rtsp_path": "RTSP-Pfad",
+          "video_wait_timeout": "Max. Wartezeit auf Videobild (s)",
+          "linger_seconds": "Nachlaufzeit vor Verbindungsabbau (s)",
+          "channel": "Kanal",
+          "action": "Aktion (1 = öffnen)",
+          "lockdelay": "Öffnungsdauer"
+        }
+      }
+    }
+  }
+}
