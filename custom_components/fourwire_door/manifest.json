@@ -3,11 +3,11 @@
   "name": "4-Wire Door (GBF MR263C4 / ControlCam)",
   "version": "0.1.0",
   "config_flow": true,
-  "documentation": "https://github.com/crimi/ha-4wire-door",
-  "issue_tracker": "https://github.com/crimi/ha-4wire-door/issues",
+  "documentation": "https://github.com/videejay/ha-4wire-door",
+  "issue_tracker": "https://github.com/videejay/ha-4wire-door/issues",
   "iot_class": "local_push",
   "integration_type": "device",
   "requirements": [],
   "dependencies": ["ffmpeg"],
-  "codeowners": []
+  "codeowners": ["@videejay"]
 }
