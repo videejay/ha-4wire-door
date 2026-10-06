@@ -1,4 +1,4 @@
-"""Config- und Options-Flow fuer die 4-Wire-Door-Integration."""
+"""Config and options flow for the 4-Wire Door integration."""
 from __future__ import annotations
 
 import logging
@@ -39,7 +39,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def _validate(hass: HomeAssistant, data: dict[str, Any]) -> None:
-    """Prüft Erreichbarkeit + Login (ohne Türöffnung). Throw bei Fehler."""
+    """Check reachability + login (without opening the door). Raises on error."""
     await hass.async_add_executor_job(
         probe_login,
         data[CONF_HOST],
@@ -50,7 +50,7 @@ async def _validate(hass: HomeAssistant, data: dict[str, Any]) -> None:
 
 
 class FourWireDoorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Führt den Nutzer durch das Anlegen eines Geräts."""
+    """Guides the user through adding a device."""
 
     VERSION = 1
 
@@ -70,7 +70,7 @@ class FourWireDoorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001
-                _LOGGER.exception("Unerwarteter Fehler bei der Validierung")
+                _LOGGER.exception("Unexpected error during validation")
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(
@@ -106,7 +106,7 @@ class FourWireDoorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class FourWireDoorOptionsFlow(config_entries.OptionsFlow):
-    """Feineinstellungen (optional)."""
+    """Fine-tuning (optional)."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self._entry = config_entry

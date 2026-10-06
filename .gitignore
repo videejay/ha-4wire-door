@@ -1,4 +1,4 @@
-# Enthaelt das Geraete-Passwort im Klartext -- niemals einchecken.
+# Contains the device password in plain text -- never commit this.
 door_secrets.json
 __pycache__/
 *.pyc

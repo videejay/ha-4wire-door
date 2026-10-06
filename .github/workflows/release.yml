@@ -1,8 +1,8 @@
 name: Release
 
-# Erstellt automatisch einen normalen (NICHT als Pre-Release markierten)
-# GitHub-Release, sobald ein Tag der Form vX.Y.Z gepusht wird. HACS kann nur
-# normale Releases installieren -- deshalb hier bewusst prerelease: false.
+# Automatically creates a normal (NOT marked as pre-release) GitHub release as
+# soon as a tag of the form vX.Y.Z is pushed. HACS can only install normal
+# releases -- which is why prerelease: false is set deliberately here.
 on:
   push:
     tags:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: GitHub-Release anlegen
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}

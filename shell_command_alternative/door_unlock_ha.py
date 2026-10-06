@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """
-Home-Assistant-Einstiegspunkt für die manuelle Türööffnung (GBF MR263C4 / ControlCam).
+Home Assistant entry point for the manual door opening (GBF MR263C4 / ControlCam).
 
-Wird von HA ueber shell_command aufgerufen und fuehrt GENAU EINE Türööffnungs-
-Transaktion aus (Login -> auf aktiven Video-Kanal warten -> Lock -> sauberer
-Teardown). Kein Loop, kein Retry, keine Automatik.
+Called by HA via shell_command and performs EXACTLY ONE door-opening transaction
+(login -> wait for active video channel -> lock -> clean teardown). No loop, no
+retry, no automation.
 
-Zugangsdaten kommen aus einer SEPARATEN Datei (JSON), NICHT von der Kommandozeile
-(damit sie nicht in der Prozessliste sichtbar sind). Pfad per Umgebungsvariable
-DOOR_CONFIG oder Standard: door_secrets.json neben diesem Skript.
+Credentials come from a SEPARATE file (JSON), NOT from the command line (so that
+they are not visible in the process list). Path via the environment variable
+DOOR_CONFIG or default: door_secrets.json next to this script.
 
-Nutzt nur die Python-Standardbibliothek (json/socket/struct) -- keine Zusatzpakete
-im HA-Container noetig. Das eigentliche Protokoll liegt in
-door_protocol.py (muss im selben Verzeichnis liegen).
+Uses only the Python standard library (json/socket/struct) -- no extra packages
+needed in the HA container. The actual protocol lives in door_protocol.py (must be
+in the same directory).
 
-Rückgabe: Exit 0 = Gerät hat TLV_T_LOCK_RSP result=1 gemeldet (Protokoll-Erfolg).
-Das ist KEIN unabhängiger Nachweis, dass die Tür physisch offen ist (es gibt keinen
-Türstatus-Kanal) -- in HA niemals als Türstatus/Schloss-Entität mit Zustand führen.
+Return: exit 0 = device reported TLV_T_LOCK_RSP result=1 (protocol success). This is
+NOT independent proof that the door is physically open (there is no door-status
+channel) -- never surface it in HA as a door-status/lock entity with state.
 """
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ha_door_unlock_single_action import unlock_once
+from door_protocol import unlock_once
 
 
 def load_config():
@@ -33,14 +33,14 @@ def load_config():
         with open(cfg_path, "r", encoding="utf-8") as f:
             cfg = json.load(f)
     except FileNotFoundError:
-        print(f"FEHLER: Konfigurationsdatei nicht gefunden: {cfg_path}", file=sys.stderr)
+        print(f"ERROR: configuration file not found: {cfg_path}", file=sys.stderr)
         sys.exit(3)
     except (ValueError, OSError) as e:
-        print(f"FEHLER beim Lesen der Konfiguration: {e}", file=sys.stderr)
+        print(f"ERROR reading the configuration: {e}", file=sys.stderr)
         sys.exit(3)
     for key in ("host", "user", "password"):
         if not cfg.get(key):
-            print(f"FEHLER: Pflichtfeld '{key}' fehlt in der Konfiguration.", file=sys.stderr)
+            print(f"ERROR: required field '{key}' missing in the configuration.", file=sys.stderr)
             sys.exit(3)
     return cfg
 
@@ -62,14 +62,14 @@ def main():
             verbose=bool(cfg.get("verbose", False)),
         )
     except Exception as e:
-        # Passwort taucht in unseren Exceptions nicht auf.
-        print(f"FEHLER: {e}", file=sys.stderr)
+        # The password does not appear in our exceptions.
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
     if ok:
-        print("OK: Gerät hat Protokoll-Erfolg gemeldet (result=1).")
+        print("OK: device reported protocol success (result=1).")
         sys.exit(0)
-    print("FEHLSCHLAG: Gerät hat keinen Erfolg gemeldet (result != 1).", file=sys.stderr)
+    print("FAILURE: device did not report success (result != 1).", file=sys.stderr)
     sys.exit(2)
 
 

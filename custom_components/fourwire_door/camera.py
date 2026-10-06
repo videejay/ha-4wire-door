@@ -1,7 +1,7 @@
-"""Kamera-Entität: RTSP-Live-Stream der Türstation.
+"""Camera entity: RTSP live stream of the door station.
 
-Stream-Pfad fuer dieses Geraet: rtsp://<host>/tcp/av1_0
-(ueber Options-Flow anpassbar). Nutzt das in HA eingebaute ffmpeg/stream-Backend.
+Stream path for this device: rtsp://<host>/tcp/av1_0
+(adjustable via the options flow). Uses the ffmpeg/stream backend built into HA.
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ async def async_setup_entry(
 
 
 class FourWireDoorCamera(Camera):
-    """RTSP-Stream der Türstation."""
+    """RTSP stream of the door station."""
 
     _attr_has_entity_name = True
     _attr_name = "Live"
@@ -62,7 +62,7 @@ class FourWireDoorCamera(Camera):
     async def async_camera_image(
         self, width: int | None = None, height: int | None = None
     ) -> bytes | None:
-        """Standbild per ffmpeg aus dem RTSP-Stream greifen."""
+        """Grab a still image from the RTSP stream via ffmpeg."""
         return await ffmpeg.async_get_image(
             self.hass, self._stream_url, width=width, height=height
         )
