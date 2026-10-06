@@ -1,28 +1,28 @@
 # =============================================================================
-# Home-Assistant-Konfiguration: manuelle Tueroeffnung GBF MR263C4 / ControlCam
+# Home Assistant configuration: manual door opening GBF MR263C4 / ControlCam
 # -----------------------------------------------------------------------------
-# In die configuration.yaml uebernehmen (bzw. in die jeweiligen Abschnitte
-# einsortieren, falls shell_command:/script: schon existieren).
+# Add this to configuration.yaml (or merge into the respective sections if
+# shell_command:/script: already exist).
 #
-# WICHTIG:
-#   * Bewusste MANUELLE Einzelaktion -- KEINE automation:, kein Zeitplan, kein Trigger.
-#   * Ein Aufruf = eine Transaktion. Keine Wiederholung/Retry.
-#   * Kein Türstatus wird vorgetaeuscht: "Erfolg" = nur Protokoll-Quittung des
-#     Geräts (result=1), NICHT "Tür ist offen". Daher bewusst KEINE lock-/
-#     binary_sensor-Entität mit Zustand -- nur ein zustandsloser Auslöser (Button).
-#   * Zugangsdaten stehen in door_secrets.json (chmod 600), NICHT hier.
+# IMPORTANT:
+#   * Deliberate MANUAL single action -- NO automation:, no schedule, no trigger.
+#   * One call = one transaction. No retry.
+#   * No door status is faked: "success" = only the device's protocol
+#     acknowledgement (result=1), NOT "door is open". Therefore deliberately NO
+#     lock-/binary_sensor entity with state -- only a stateless trigger (button).
+#   * Credentials live in door_secrets.json (chmod 600), NOT here.
 # =============================================================================
 
 shell_command:
-  # Ruft das Skript auf. Keine Secrets auf der Kommandozeile -- die liest das
-  # Skript aus door_secrets.json. Pfade ggf. an dein /config-Layout anpassen.
+  # Calls the script. No secrets on the command line -- the script reads them
+  # from door_secrets.json. Adjust the paths to your /config layout if needed.
   open_front_door: "python3 /config/door/door_unlock_ha.py"
 
 script:
   open_front_door:
-    alias: "Haustuer oeffnen (manuell)"
+    alias: "Open front door (manual)"
     icon: mdi:door-open
-    mode: single          # kein paralleler/mehrfacher Lauf
+    mode: single          # no parallel/multiple run
     max_exceeded: silent
     sequence:
       - service: shell_command.open_front_door
@@ -32,30 +32,30 @@ script:
             sequence:
               - service: persistent_notification.create
                 data:
-                  title: "Haustuer"
+                  title: "Front door"
                   message: >-
-                    Öffnungsbefehl gesendet, Gerät hat Protokoll-Erfolg gemeldet
-                    (result=1). Hinweis: keine unabhaengige Bestätigung, dass die
-                    Tür physisch offen ist.
+                    Open command sent, the device reported protocol success
+                    (result=1). Note: no independent confirmation that the door
+                    is physically open.
         default:
           - service: persistent_notification.create
             data:
-              title: "Haustuer -- FEHLER"
+              title: "Front door -- ERROR"
               message: >-
-                Öffnung fehlgeschlagen (Exit {{ door_result.returncode }}).
+                Opening failed (exit {{ door_result.returncode }}).
                 {{ door_result.stderr }}
 
 # -----------------------------------------------------------------------------
-# Dashboard-Button (Lovelace): fügt einen Knopf hinzu, der NUR manuell durch
-# eine Person das Script auslöst. In eine Dashboard-Karte übernehmen:
+# Dashboard button (Lovelace): adds a button that triggers the script ONLY
+# manually by a person. Add it to a dashboard card:
 #
 #   type: button
-#   name: Haustür öffnen
+#   name: Open front door
 #   icon: mdi:door-open
 #   tap_action:
-#     action: perform-action          # (aeltere HA: action: call-service)
+#     action: perform-action          # (older HA: action: call-service)
 #     perform_action: script.open_front_door
-#     # Optional als Schutz gegen versehentliches Antippen:
+#     # Optional, as protection against accidental taps:
 #   hold_action:
 #     action: none
 # -----------------------------------------------------------------------------
