@@ -1,0 +1,27 @@
+name: Release
+
+# Erstellt automatisch einen normalen (NICHT als Pre-Release markierten)
+# GitHub-Release, sobald ein Tag der Form vX.Y.Z gepusht wird. HACS kann nur
+# normale Releases installieren -- deshalb hier bewusst prerelease: false.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: GitHub-Release anlegen
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          prerelease: false
+          make_latest: true
