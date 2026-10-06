@@ -1,7 +1,7 @@
 {
   "domain": "fourwire_door",
   "name": "4-Wire Door (GBF MR263C4 / ControlCam)",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "config_flow": true,
   "documentation": "https://github.com/videejay/ha-4wire-door",
   "issue_tracker": "https://github.com/videejay/ha-4wire-door/issues",

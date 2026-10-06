@@ -49,7 +49,23 @@ enter IP address, username, password.
 
 The entities appear under the new device:
 - `lock.<name>` – open the door (with PIN prompt),
-- `camera.<name>_live` – RTSP live stream.
+- `camera.<name>_live` – RTSP live stream,
+- `button.<name>_video_signal_on` / `button.<name>_video_signal_off` – manually
+  switch the video signal on/off (see below).
+
+## Video signal on / off
+
+Without an active client session the camera sensor of the door station only
+delivers a **blue picture** on RTSP. "Video signal on" logs in exactly like the app
+(`streamMode=SUB`, `dataType=MIXED`) and keeps that session open; "Video signal
+off" ends it with the app's teardown packet.
+
+- Neither button sends a lock request – **they never open the door**.
+- No retry/reconnect: if the device drops the connection, the session is simply over.
+- Safety cap: a started session ends by itself after 300 s.
+- Opening the door runs its own short session and ends it with the teardown packet,
+  which also switches the video signal off. Press "on" again afterwards if needed.
+- Whether the video signal stays stable in parallel to the app is not verified.
 
 ## Options (Settings → Device → Configure)
 

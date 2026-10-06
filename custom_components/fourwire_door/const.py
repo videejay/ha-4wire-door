@@ -17,6 +17,11 @@ CONF_LINGER_SECONDS = "linger_seconds"
 CONF_RTSP_PATH = "rtsp_path"
 CONF_REQUIRE_PIN = "require_pin"
 
+# hass.data key for the manual video sessions (per config entry)
+VIDEO_SESSIONS = "video_sessions"
+# Safety cap: a manually started video session ends by itself after this time.
+VIDEO_SESSION_MAX_SECONDS = 300.0
+
 DEFAULT_PORT = 18600
 DEFAULT_NAME = "Front Door"
 DEFAULT_CHANNEL = 1
