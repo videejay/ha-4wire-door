@@ -13,6 +13,8 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     CONF_ACTION,
     CONF_CHANNEL,
+    CONF_GB_ENABLED,
+    CONF_GB_PORT,
     CONF_HOST,
     CONF_LINGER_SECONDS,
     CONF_LOCKDELAY,
@@ -25,6 +27,8 @@ from .const import (
     CONF_VIDEO_WAIT_TIMEOUT,
     DEFAULT_ACTION,
     DEFAULT_CHANNEL,
+    DEFAULT_GB_ENABLED,
+    DEFAULT_GB_PORT,
     DEFAULT_LINGER_SECONDS,
     DEFAULT_LOCKDELAY,
     DEFAULT_NAME,
@@ -150,6 +154,14 @@ class FourWireDoorOptionsFlow(config_entries.OptionsFlow):
                     CONF_LOCKDELAY,
                     default=opts.get(CONF_LOCKDELAY, DEFAULT_LOCKDELAY),
                 ): int,
+                vol.Optional(
+                    CONF_GB_ENABLED,
+                    default=opts.get(CONF_GB_ENABLED, DEFAULT_GB_ENABLED),
+                ): bool,
+                vol.Optional(
+                    CONF_GB_PORT,
+                    default=opts.get(CONF_GB_PORT, DEFAULT_GB_PORT),
+                ): vol.All(int, vol.Range(min=1, max=65535)),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

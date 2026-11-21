@@ -33,8 +33,29 @@
           "linger_seconds": "Nachlaufzeit vor Verbindungsabbau (s)",
           "channel": "Kanal",
           "action": "Aktion (1 = öffnen)",
-          "lockdelay": "Öffnungsdauer"
+          "lockdelay": "Öffnungsdauer",
+          "gb28181_enabled": "Klingel-Empfänger (GB28181) aktiv",
+          "gb28181_port": "UDP-Port des Klingel-Empfängers"
         }
+      }
+    }
+  },
+  "entity": {
+    "event": {
+      "doorbell": {
+        "name": "Klingel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ring": "Geklingelt"
+            }
+          }
+        }
+      }
+    },
+    "binary_sensor": {
+      "doorbell_channel": {
+        "name": "Klingel-Kanal"
       }
     }
   }

@@ -42,6 +42,7 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     MODEL,
+    OWN_ACTIVITY,
     PIN_CODE_FORMAT,
 )
 from .door_protocol import unlock_once
@@ -116,6 +117,9 @@ class FourWireDoorLock(LockEntity):
 
         self._attr_is_unlocking = True
         self.async_write_ha_state()
+        own = self.hass.data[DOMAIN].get(OWN_ACTIVITY, {}).get(self._entry.entry_id)
+        if own is not None:
+            own.mark()  # the unlock session switches video on -> not a ring
         try:
             ok = await self.hass.async_add_executor_job(
                 _run_unlock, data, opts, lock_pwd
@@ -127,6 +131,8 @@ class FourWireDoorLock(LockEntity):
         except Exception as err:  # noqa: BLE001
             raise HomeAssistantError(f"Door opening failed: {err}") from err
         finally:
+            if own is not None:
+                own.mark()
             self._attr_is_unlocking = False
             self._attr_is_locked = True
             self.async_write_ha_state()

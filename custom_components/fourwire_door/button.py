@@ -13,7 +13,16 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_HOST, CONF_NAME, DEFAULT_NAME, DOMAIN, MANUFACTURER, MODEL, VIDEO_SESSIONS
+from .const import (
+    CONF_HOST,
+    CONF_NAME,
+    DEFAULT_NAME,
+    DOMAIN,
+    MANUFACTURER,
+    MODEL,
+    OWN_ACTIVITY,
+    VIDEO_SESSIONS,
+)
 from .video_session import VideoSession
 
 
@@ -34,6 +43,7 @@ class VideoButton(ButtonEntity):
 
     def __init__(self, entry: ConfigEntry, session: VideoSession, kind: str) -> None:
         self._session = session
+        self._entry_id = entry.entry_id
         self._kind = kind
         self._attr_unique_id = f"{entry.entry_id}_video_{kind}"
         self._attr_name = "Video signal on" if kind == "on" else "Video signal off"
@@ -47,6 +57,9 @@ class VideoButton(ButtonEntity):
         )
 
     async def async_press(self) -> None:
+        own = self.hass.data[DOMAIN].get(OWN_ACTIVITY, {}).get(self._entry_id)
+        if own is not None:
+            own.mark()  # starting/stopping video raises a motion alarm -> not a ring
         try:
             if self._kind == "on":
                 await self.hass.async_add_executor_job(self._session.start)

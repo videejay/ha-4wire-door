@@ -36,3 +36,23 @@ PIN_CODE_FORMAT = r"^.{1,32}$"
 
 MANUFACTURER = "GBF"
 MODEL = "MR263C4 (ControlCam)"
+
+# --- Doorbell via GB28181 (local SIP push from the device) ---
+CONF_GB_ENABLED = "gb28181_enabled"
+CONF_GB_PORT = "gb28181_port"
+DEFAULT_GB_ENABLED = True
+DEFAULT_GB_PORT = 5060
+# hass.data key for the receiver state (per config entry)
+GB_STATES = "gb28181_states"
+# "Doorbell channel" goes off when nothing arrived for this long
+# (device heartbeat default 60 s -> 3 missed keepalives).
+GB_STALE_SECONDS = 200
+# Dispatcher signal for a ring (format with entry_id)
+SIGNAL_RING = "fourwire_door_ring_{}"
+# HA bus event fired on every ring
+EVENT_RING = "fourwire_door_doorbell"
+# A video start by THIS integration (video button / door opening) also raises the
+# motion alarm. Alarms during an own session or shortly after it are not
+# reported as a ring.
+OWN_ACTIVITY_SUPPRESS_SECONDS = 15.0
+OWN_ACTIVITY = "own_activity"

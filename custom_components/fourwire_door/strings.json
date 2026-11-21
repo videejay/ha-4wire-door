@@ -33,8 +33,29 @@
           "linger_seconds": "Linger before teardown (s)",
           "channel": "Channel",
           "action": "Action (1 = open)",
-          "lockdelay": "Open duration"
+          "lockdelay": "Open duration",
+          "gb28181_enabled": "Doorbell receiver (GB28181) active",
+          "gb28181_port": "Doorbell receiver UDP port"
         }
+      }
+    }
+  },
+  "entity": {
+    "event": {
+      "doorbell": {
+        "name": "Doorbell",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ring": "Ring"
+            }
+          }
+        }
+      }
+    },
+    "binary_sensor": {
+      "doorbell_channel": {
+        "name": "Doorbell channel"
       }
     }
   }

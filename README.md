@@ -67,6 +67,52 @@ off" ends it with the app's teardown packet.
   which also switches the video signal off. Press "on" again afterwards if needed.
 - Whether the video signal stays stable in parallel to the app is not verified.
 
+## Doorbell event (local, via GB28181)
+
+The door station has a built-in GB28181 (SIP) client. Pointed at Home Assistant,
+it pushes an alarm when someone rings, with no cloud involved. The integration runs a small
+receiver for it (UDP 5060 by default) and provides:
+
+- `event.<name>_doorbell`: event type `ring` on every ring. Use it in automations
+  ("Entity → Event → Doorbell").
+- HA bus event `fourwire_door_doorbell` (data: `entry_id`, `alarm_method`,
+  `alarm_time`, …).
+- `binary_sensor.<name>_doorbell_channel` (diagnostic): "connected" while the device is
+  registered and its keepalives (every 60 s) arrive. If it goes off, rings are
+  **not** delivered.
+
+### One-time setup on the device
+Open `http://<device-ip>/gb28181.asp` (the page is hidden in the device menu) and set:
+
+| Field | Value |
+|---|---|
+| Server ID | `34020000002000000001` |
+| Server address | IP of the HA host/container |
+| Server port | `5060` (= option "Doorbell receiver UDP port") |
+| Device ID | `34020000001320000001` |
+| Device port | `5060` |
+| Media channel ID / Alarming channel ID | `34020000001310000001` / `34020000001340000001` |
+| Registration valid time / Heartbeating time | `3600` / `60` |
+
+Then click **Save**. Within about a minute the device registers and the channel sensor
+turns on.
+
+### How it works / limitations
+- When someone rings, the indoor station switches the camera on. The firmware raises a ~6 s
+  **motion alarm** (`AlarmMethod 5`) and sends it as SIP `MESSAGE`. The receiver only
+  answers REGISTER/MESSAGE with `200 OK`. It never sends its own requests.
+- The device **sets its clock** from the `Date` header of that `200 OK` (HA time zone).
+- Video started by this integration (video button, door opening) raises the same
+  alarm. It is suppressed for 15 s. **Video opened in the ControlCam app cannot be told
+  apart from a ring.** Real motion in front of the camera while the video is on can
+  also trigger it.
+- If the receiver is unreachable for a longer time (seen: PC standby ~2.5 h), the device
+  did not register again on its own, and the "Register" button on its page did not
+  help either. **Saving the GB28181 page again (unchanged values)** brought it back. A short HA
+  restart is not yet verified. Watch the channel sensor.
+- The HA container needs its own LAN IP or `network_mode: host` so that UDP 5060 is
+  reachable from the device.
+
 ## Options (Settings → Device → Configure)
 
 | Option | Default | Purpose |
@@ -76,6 +122,8 @@ off" ends it with the app's teardown packet.
 | Max wait for video | 6 s | Wait for real I-frames before the lock. |
 | Linger before teardown | 2 s | Keep the session open before teardown. |
 | Channel / action / open duration | 1 / 1 / 1 | Change only if needed (`action` = 1 = open, verified). |
+| Doorbell receiver (GB28181) active | on | Run the local SIP receiver for the doorbell event. |
+| Doorbell receiver UDP port | 5060 | Must match "Server port" on the device page. |
 
 ## Network (Docker)
 
@@ -97,8 +145,6 @@ into the camera subnet must be in place.
 
 Ideas on the roadmap (not yet implemented, contributions welcome):
 
-- **Doorbell event detection** – expose an event/trigger in HA when someone rings,
-  so automations can react (notifications, lights, etc.).
 - **Mute the doorbell** – option to silence the chime.
 - **Video motion detection + recording** – detect motion in the video stream and
   store the recorded clip.
